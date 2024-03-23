@@ -15,5 +15,5 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 }
 
 func IndexHandler(c echo.Context) error {
-	return Render(c, http.StatusOK, components.Index())
+	return Render(c, http.StatusOK, components.Index(components.Form()))
 }

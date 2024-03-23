@@ -7,6 +7,8 @@ import (
 
 func main() {
 	app := echo.New()
+	app.Static("/public", "public")
 	app.GET("/", handler.IndexHandler)
+	app.POST("/sign", handler.FormHandler)
 	app.Logger.Fatal(app.Start(":4000"))
 }
