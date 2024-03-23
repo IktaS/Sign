@@ -23,7 +23,7 @@ func Index() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Title</title><meta name=\"description\" content=\"Signing Site\"><meta name=\"author\" content=\"IktaS\"><!--[if lt IE 9]>\n            <script src=\"http://html5shiv.googlecode.com/svn/trunk/html5.js\"></script>\n            <![endif]--></head><body><div>Hello, World</div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Sign a document</title><meta name=\"description\" content=\"Signing Site for IktaS\"><meta name=\"author\" content=\"IktaS\"><!--[if lt IE 9]>\n            <script src=\"http://html5shiv.googlecode.com/svn/trunk/html5.js\"></script>\n            <![endif]--><!-- Pico.css --><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css\"></head><body><main class=\"container\"><form><label for=\"password\">Password</label> <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Password to authenticate the QR request\"> <small>Ask IktaS for the password specific to you</small> <label for=\"file\">File to sign <input type=\"file\" id=\"file\" name=\"file\"></label> <input type=\"submit\" value=\"Submit\" onclick=\"event.preventDefault()\"></form></main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
