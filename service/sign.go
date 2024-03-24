@@ -6,15 +6,16 @@ import (
 	"crypto/sha512"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"mime/multipart"
 	"time"
 
 	"github.com/IktaS/sign/auth"
 	"github.com/google/uuid"
+	"github.com/phpdave11/gofpdi"
+	"github.com/signintech/gopdf"
 	"github.com/skip2/go-qrcode"
-	"github.com/unidoc/unipdf/v3/creator"
-	"github.com/unidoc/unipdf/v3/model"
 )
 
 type SignRequest struct {
@@ -65,62 +66,66 @@ func (s *SignService) SignFile(ctx context.Context, req SignRequest) ([]byte, er
 	var png []byte
 	png, err = qrcode.Encode(qrString, qrcode.Highest, req.QRSize)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, png)
 		return nil, err
 	}
 
-	c := creator.New()
+	pdf := gopdf.GoPdf{}
+	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
 
-	img, err := c.NewImageFromData(png)
+	img, err := gopdf.ImageHolderByBytes(png)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	pdfReader, err := model.NewPdfReader(req.File)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
+	importer := gofpdi.NewImporter()
+	readSeeker := io.ReadSeeker(req.File)
+	importer.SetSourceStream(&readSeeker)
+	pageSizes := importer.GetPageSizes()
 
-	numPages, err := pdfReader.GetNumPages()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	for i := 0; i < numPages; i++ {
-		page, err := pdfReader.GetPage(i + 1)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
+	for i := 1; i <= len(pageSizes); i++ {
+		tmplid := pdf.ImportPageStream(&readSeeker, i, "/MediaBox")
 
-		// Add the page.
-		err = c.AddPage(page)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
+		width := pageSizes[i]["/MediaBox"]["w"]
+		height := pageSizes[i]["/MediaBox"]["h"]
 
-		if req.IsAllPage != nil && *req.IsAllPage {
-			err := c.Draw(img)
-			if err != nil {
-				log.Println(err)
-				return nil, err
-			}
-		}
+		pdf.AddPageWithOption(gopdf.PageOption{PageSize: &gopdf.Rect{W: width, H: height}})
+		pdf.UseImportedTemplate(tmplid, 0, 0, width, height)
 
-		if req.IsAllPage == nil && req.QRPage != nil && i+1 == *req.QRPage {
-			err := c.Draw(img)
-			if err != nil {
-				log.Println(err)
-				return nil, err
-			}
-		}
+		log.Println(width*(float64(req.LocationXPercentage)/100), height-(height*(float64(req.LocationYPercentage)/100))+float64(req.QRSize))
+
+		pdf.ImageByHolder(img,
+			width*(float64(req.LocationXPercentage)/100),
+			height-(height*(float64(req.LocationYPercentage)/100))+float64(req.QRSize),
+			nil,
+		)
+		// // Add the page.
+		// err = c.AddPage(page)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	return nil, err
+		// }
+
+		// if req.IsAllPage != nil && *req.IsAllPage {
+		// 	err := c.Draw(img)
+		// 	if err != nil {
+		// 		log.Println(err)
+		// 		return nil, err
+		// 	}
+		// }
+
+		// if req.IsAllPage == nil && req.QRPage != nil && i+1 == *req.QRPage {
+		// 	err := c.Draw(img)
+		// 	if err != nil {
+		// 		log.Println(err)
+		// 		return nil, err
+		// 	}
+		// }
 	}
 
 	var b bytes.Buffer
-	err = c.Write(&b)
+	_, err = pdf.WriteTo(&b)
 	if err != nil {
 		return nil, err
 	}

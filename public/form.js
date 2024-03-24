@@ -1,7 +1,7 @@
 const { degrees, PDFDocument, rgb, StandardFonts } = PDFLib;
 
 let existingPdfBytes;
-const pngSize = 1600;
+const pngSize = 3200;
 
 async function onFileChange(dom, e) {
 	if (e.target.files[0]) {
@@ -35,9 +35,18 @@ async function reRenderPDF() {
 		for (let i = 0; i < pages.length; i++) {
 			const page = pdfDoc.getPages()[i];
 
+			let widthLoc = page.getWidth() * (qrWidth / 100) - pngDims.width;
+			if (widthLoc < 0) {
+				widthLoc = 0;
+			}
+			let heightLoc = page.getHeight() * (qrHeight / 100) - pngDims.height;
+			if (heightLoc < 0) {
+				heightLoc = 0;
+			}
+
 			page.drawImage(pngImage, {
-				x: page.getWidth() * (qrWidth / 100),
-				y: page.getHeight() * (qrHeight / 100),
+				x: widthLoc,
+				y: heightLoc,
 				width: pngDims.width,
 				height: pngDims.height,
 			});
@@ -51,9 +60,18 @@ async function reRenderPDF() {
 		}
 		const page = pdfDoc.getPages()[qrPage - 1];
 
+		let widthLoc = page.getWidth() * (qrWidth / 100) - pngDims.width;
+		if (widthLoc < 0) {
+			widthLoc = 0;
+		}
+		let heightLoc = page.getHeight() * (qrHeight / 100) - pngDims.height;
+		if (heightLoc < 0) {
+			heightLoc = 0;
+		}
+
 		page.drawImage(pngImage, {
-			x: page.getWidth() * (qrWidth / 100),
-			y: page.getHeight() * (qrHeight / 100),
+			x: widthLoc,
+			y: heightLoc,
 			width: pngDims.width,
 			height: pngDims.height,
 		});
