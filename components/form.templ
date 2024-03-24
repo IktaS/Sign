@@ -1,7 +1,7 @@
 package components
 
 templ Form() {
-	<form action="/sign" method="post">
+	<form action="/sign" method="post" enctype="multipart/form-data">
 		<label for="username">Username</label>
 		<input type="username" id="username" name="username" placeholder="Username of signer"/>
 		<small>Ask IktaS for the username specific to you</small>
