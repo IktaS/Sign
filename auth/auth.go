@@ -96,7 +96,7 @@ func DecodeHash(encodedHash string) (p *Params, salt, hash []byte, err error) {
 	return p, salt, hash, nil
 }
 
-func ComparePasswordAndHash(password, encodedHash string) (match bool, err error) {
+func CompareDataAndHash(data []byte, encodedHash string) (match bool, err error) {
 	// Extract the parameters, salt and derived key from the encoded password
 	// hash.
 	p, salt, hash, err := DecodeHash(encodedHash)
@@ -104,10 +104,10 @@ func ComparePasswordAndHash(password, encodedHash string) (match bool, err error
 		return false, err
 	}
 
-	// Derive the key from the other password using the same parameters.
-	otherHash := argon2.IDKey([]byte(password), salt, p.iterations, p.memory, p.parallelism, p.keyLength)
+	// Derive the key from the other data using the same parameters.
+	otherHash := argon2.IDKey(data, salt, p.iterations, p.memory, p.parallelism, p.keyLength)
 
-	// Check that the contents of the hashed passwords are identical. Note
+	// Check that the contents of the hashed data are identical. Note
 	// that we are using the subtle.ConstantTimeCompare() function for this
 	// to help prevent timing attacks.
 	if subtle.ConstantTimeCompare(hash, otherHash) == 1 {

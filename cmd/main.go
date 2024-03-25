@@ -51,6 +51,8 @@ func main() {
 	app.Static("/public", "public")
 
 	app.GET("/", handler.IndexHandler)
+	app.POST("/verify", handler.VerifyFileHandler(signService))
+	app.GET("/verify", handler.VerifyHandler(signService))
 	app.POST("/sign", handler.SignHandler(signService))
 
 	app.Logger.Fatal(app.Start(":4000"))
