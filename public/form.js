@@ -35,14 +35,8 @@ async function reRenderPDF() {
 		for (let i = 0; i < pages.length; i++) {
 			const page = pdfDoc.getPages()[i];
 
-			let widthLoc = page.getWidth() * (qrWidth / 100) - pngDims.width;
-			if (widthLoc < 0) {
-				widthLoc = 0;
-			}
-			let heightLoc = page.getHeight() * (qrHeight / 100) - pngDims.height;
-			if (heightLoc < 0) {
-				heightLoc = 0;
-			}
+			let widthLoc = (page.getWidth() - pngDims.width) * (qrWidth / 100);
+			let heightLoc = (page.getHeight() - pngDims.height) * (qrHeight / 100);
 
 			page.drawImage(pngImage, {
 				x: widthLoc,
@@ -60,14 +54,8 @@ async function reRenderPDF() {
 		}
 		const page = pdfDoc.getPages()[qrPage - 1];
 
-		let widthLoc = page.getWidth() * (qrWidth / 100) - pngDims.width;
-		if (widthLoc < 0) {
-			widthLoc = 0;
-		}
-		let heightLoc = page.getHeight() * (qrHeight / 100) - pngDims.height;
-		if (heightLoc < 0) {
-			heightLoc = 0;
-		}
+		let widthLoc = (page.getWidth() - pngDims.width) * (qrWidth / 100);
+		let heightLoc = (page.getHeight() - pngDims.height) * (qrHeight / 100);
 
 		page.drawImage(pngImage, {
 			x: widthLoc,

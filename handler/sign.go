@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -65,11 +66,12 @@ func SignHandler(s *service.SignService) func(c echo.Context) error {
 			File:                src,
 			Filename:            file.Filename,
 		}
-		updatedPDF, err := s.SignFile(c.Request().Context(), req)
+		updatedPDF, filename, err := s.SignFile(c.Request().Context(), req)
 		if err != nil {
 			return err
 		}
 
+		c.Response().Header().Add("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 		c.Blob(http.StatusOK, "application/pdf", updatedPDF)
 
 		return nil

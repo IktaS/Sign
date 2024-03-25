@@ -9,6 +9,8 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/IktaS/sign/auth"
@@ -43,21 +45,21 @@ type SignRepo interface {
 	SaveSignature(ctx context.Context, uuid string, filename string, fileHash string, createdAt time.Time, createdBy int) error
 }
 
-func (s *SignService) SignFile(ctx context.Context, req SignRequest) ([]byte, error) {
+func (s *SignService) SignFile(ctx context.Context, req SignRequest) ([]byte, string, error) {
 	userId, isUserVerified, err := s.signRepo.ValidateUser(ctx, req.Username, req.Password)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, "", err
 	}
 	if !isUserVerified {
 		log.Println(err)
-		return nil, errors.New("user not verified")
+		return nil, "", errors.New("user not verified")
 	}
 
 	uuid, err := uuid.NewV7()
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, "", err
 	}
 	uuidStr := uuid.String()
 
@@ -67,7 +69,7 @@ func (s *SignService) SignFile(ctx context.Context, req SignRequest) ([]byte, er
 	png, err = qrcode.Encode(qrString, qrcode.Highest, req.QRSize)
 	if err != nil {
 		log.Println(err, png)
-		return nil, err
+		return nil, "", err
 	}
 
 	pdf := gopdf.GoPdf{}
@@ -76,7 +78,7 @@ func (s *SignService) SignFile(ctx context.Context, req SignRequest) ([]byte, er
 	img, err := gopdf.ImageHolderByBytes(png)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, "", err
 	}
 
 	importer := gofpdi.NewImporter()
@@ -93,53 +95,46 @@ func (s *SignService) SignFile(ctx context.Context, req SignRequest) ([]byte, er
 		pdf.AddPageWithOption(gopdf.PageOption{PageSize: &gopdf.Rect{W: width, H: height}})
 		pdf.UseImportedTemplate(tmplid, 0, 0, width, height)
 
-		log.Println(width*(float64(req.LocationXPercentage)/100), height-(height*(float64(req.LocationYPercentage)/100))+float64(req.QRSize))
+		xLocation := ((width - (float64(req.QRSize) / 1.75)) * (float64(req.LocationXPercentage) / 100))
+		ylocation := ((height - (float64(req.QRSize) / 1.75)) * (float64(100-req.LocationYPercentage) / 100))
 
-		pdf.ImageByHolder(img,
-			width*(float64(req.LocationXPercentage)/100),
-			height-(height*(float64(req.LocationYPercentage)/100))+float64(req.QRSize),
-			nil,
-		)
-		// // Add the page.
-		// err = c.AddPage(page)
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return nil, err
-		// }
+		if req.IsAllPage != nil && *req.IsAllPage {
+			pdf.ImageByHolder(
+				img,
+				xLocation,
+				ylocation,
+				nil,
+			)
+		}
 
-		// if req.IsAllPage != nil && *req.IsAllPage {
-		// 	err := c.Draw(img)
-		// 	if err != nil {
-		// 		log.Println(err)
-		// 		return nil, err
-		// 	}
-		// }
-
-		// if req.IsAllPage == nil && req.QRPage != nil && i+1 == *req.QRPage {
-		// 	err := c.Draw(img)
-		// 	if err != nil {
-		// 		log.Println(err)
-		// 		return nil, err
-		// 	}
-		// }
+		if req.IsAllPage == nil && req.QRPage != nil && i+1 == *req.QRPage {
+			pdf.ImageByHolder(
+				img,
+				xLocation,
+				ylocation,
+				nil,
+			)
+		}
 	}
 
 	var b bytes.Buffer
 	_, err = pdf.WriteTo(&b)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	updatedPdfBytes := b.Bytes()
 
 	h := sha512.New()
 	h.Write(updatedPdfBytes)
 
-	err = s.signRepo.SaveSignature(ctx, uuidStr, req.Filename, string(h.Sum(nil)), time.Now(), userId)
+	filename := fmt.Sprintf("%s_signed.pdf", strings.TrimSuffix(req.Filename, filepath.Ext(req.Filename)))
+
+	err = s.signRepo.SaveSignature(ctx, uuidStr, filename, string(h.Sum(nil)), time.Now(), userId)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return updatedPdfBytes, nil
+	return updatedPdfBytes, filename, nil
 }
 
 func (s *SignService) CreateUser(ctx context.Context, username, password, fullName string) (int, error) {
