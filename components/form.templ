@@ -21,7 +21,7 @@ templ Form() {
 		</head>
 		<body>
 			<main class="container">
-				<form action="/sign" method="post" enctype="multipart/form-data">
+				<form action="/sign" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
 					<label for="username">Username</label>
 					<input type="username" id="username" name="username" placeholder="Username of signer"/>
 					<small>Ask IktaS for the username specific to you</small>
@@ -30,7 +30,7 @@ templ Form() {
 					<small>Ask IktaS for the password specific to you</small>
 					<label for="file">
 						File to sign
-						<input type="file" id="file" name="file" accept=".pdf, application/pdf" onchange="onFileChange(this, event)"/>
+						<input type="file" id="file" name="file" accept=".pdf, application/pdf" onchange="onFileChange(event)"/>
 					</label>
 					<figure hidden id="pdf-editor">
 						<label for="qr-location-width">
@@ -58,7 +58,7 @@ templ Form() {
 						<legend><strong>Preview</strong></legend>
 						<iframe id="pdf" style="margin: 1vh; width: 100%; height: 50vh;"></iframe>
 					</figure>
-					<input type="submit" value="Submit"/>
+					<button id="submit" type="submit" value="Submit" onclick="submitFile(event)">Submit</button>
 				</form>
 			</main>
 		</body>

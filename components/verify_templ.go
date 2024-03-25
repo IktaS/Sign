@@ -88,7 +88,7 @@ func VerifyFile(ownerName, id, filename, fullname, timestamp string) templ.Compo
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</blockquote></hgroup></article><form id=\"form\" onsubmit=\"verifyFile(event)\"><label for=\"file\">File to verify integrity <input type=\"file\" id=\"file\" name=\"file\" accept=\".pdf, application/pdf\" onchange=\"showButton(event)\"> <small>File untuk verifikasi integritas</small></label> <input hidden type=\"text\" id=\"id\" name=\"text\" placeholder=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</blockquote></hgroup></article><form id=\"form\" onsubmit=\"event.preventDefault()\"><label for=\"file\">File to verify integrity <input type=\"file\" id=\"file\" name=\"file\" accept=\".pdf, application/pdf\" onchange=\"showButton(event)\"> <small>File untuk verifikasi integritas</small></label> <input hidden type=\"text\" id=\"id\" name=\"text\" placeholder=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -114,7 +114,7 @@ func VerifyFile(ownerName, id, filename, fullname, timestamp string) templ.Compo
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input id=\"submit\" type=\"submit\" value=\"Submit\"><article hidden id=\"result\"></article></form></main></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <button id=\"submit\" type=\"submit\" value=\"Submit\" onclick=\"verifyFile(event)\">Submit</button><article hidden id=\"result\"></article></form></main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

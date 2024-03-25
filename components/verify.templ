@@ -69,14 +69,14 @@ templ VerifyFile(ownerName, id, filename, fullname, timestamp string) {
 						</blockquote>
 					</hgroup>
 				</article>
-				<form id="form" onsubmit="verifyFile(event)">
+				<form id="form" onsubmit="event.preventDefault()">
 					<label for="file">
 						File to verify integrity
 						<input type="file" id="file" name="file" accept=".pdf, application/pdf" onchange="showButton(event)"/>
 						<small>File untuk verifikasi integritas</small>
 					</label>
 					<input hidden type="text" id="id" name="text" placeholder={ id } value={ id }/>
-					<input id="submit" type="submit" value="Submit"/>
+					<button id="submit" type="submit" value="Submit" onclick="verifyFile(event)">Submit</button>
 					<article hidden id="result"></article>
 				</form>
 			</main>
