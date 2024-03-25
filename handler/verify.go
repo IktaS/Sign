@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func VerifyHandler(s *service.SignService) func(c echo.Context) error {
+func VerifyHandler(ownerName string, s *service.SignService) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		id := c.QueryParam("id")
 		if id == "" {
@@ -22,7 +22,7 @@ func VerifyHandler(s *service.SignService) func(c echo.Context) error {
 			c.Logger().Error(err)
 			return err
 		}
-		return Render(c, http.StatusOK, components.VerifyFile(id, info.Filename, info.Fullname, info.CreatedAt.Format(time.RFC3339)))
+		return Render(c, http.StatusOK, components.VerifyFile(ownerName, id, info.Filename, info.Fullname, info.CreatedAt.Format(time.RFC3339)))
 	}
 }
 

@@ -1,6 +1,6 @@
 package components
 
-templ VerifyFile(id, filename, fullname, timestamp string) {
+templ VerifyFile(ownerName, id, filename, fullname, timestamp string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -32,8 +32,8 @@ templ VerifyFile(id, filename, fullname, timestamp string) {
 				</section>
 				<break></break>
 				<hgroup>
-					<h3>As Imam Rafii Al Dzakwan, the owner of the this website, states that:</h3>
-					<small><em>Sebagai Imam Rafii Al Dzakwan, pemilik website ini, menyatakan bahwa:</em></small>
+					<h3>As { ownerName }, the owner of the this website, states that:</h3>
+					<small><em>Sebagai { ownerName }, pemilik website ini, menyatakan bahwa:</em></small>
 				</hgroup>
 				<hr/>
 				<article>
